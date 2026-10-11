@@ -78,5 +78,8 @@ Optional: for high-resolution logos from [Logo.dev](https://www.logo.dev), put a
 publishable key in `CONFIG.LOGO_DEV_TOKEN` in `src/js/core.js` and rebuild. Without one, the
 built-in vector Cisco mark is used, and customer logos fall back to their website icon.
 
-Charts use [Plotly.js](https://plotly.com/javascript/) and icons use [Lucide](https://lucide.dev),
-both loaded from public CDNs, so presenting needs an internet connection.
+Charts use [Plotly.js](https://plotly.com/javascript/) and icons use [Lucide](https://lucide.dev).
+Both libraries and the world-map data are **bundled inside the encrypted page** (`src/vendor/`),
+so the dashboard makes no third-party requests and keeps working if a CDN is blocked by a
+corporate firewall. The only optional outside request is the Inter web font; without it the
+page falls back to the system font.
