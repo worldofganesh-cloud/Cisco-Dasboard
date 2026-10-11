@@ -34,6 +34,14 @@ Click almost any bar, map country, heatmap cell or table row to filter or drill 
 Every table sorts, searches and downloads to CSV; the toolbar exports the current view to
 Excel or PDF (print), toggles light/dark mode, and goes full screen for presenting.
 
+**Animation:** charts animate in when a hub opens (bars grow from the baseline, lines draw on,
+areas and heatmaps wipe in, map countries and initiative pins appear in sequence), KPI numbers
+count up, and cards rise into place. Changing a filter plays a shorter version and numbers roll
+from their previous value. The sparkle icon in the toolbar switches motion off (remembered in
+the browser); it is automatically off for anyone whose system asks for reduced motion, and
+printing or saving to PDF always shows the finished charts. Charts resize with their cards and
+re-lay-out at phone, tablet and desktop widths.
+
 **Co-branding:** the Cisco logo sits top-left; the customer's logo appears top-right. Set it
 with the brush icon, or send a pre-branded link:
 `https://worldofganesh-cloud.github.io/Cisco-Dasboard/?client=acme.com&clientName=Acme`
