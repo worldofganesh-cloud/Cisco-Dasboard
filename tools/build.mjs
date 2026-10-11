@@ -33,6 +33,7 @@ let html = readFileSync(join(SRC, 'index.html'), 'utf8');
 html = html.replace(/<link rel="stylesheet" href="\.\/([^"]+)">/g, (_, p) => `<style>\n${readFileSync(join(SRC, p), 'utf8')}\n</style>`);
 const safe = (t) => t.replace(/<\/script/gi, '<\\/script').replace(/<!--/g, '<\\!--');
 html = html.replace(/<script src="\.\/([^"]+)"><\/script>/g, (_, p) => `<script>\n${safe(readFileSync(join(SRC, p), 'utf8'))}\n</script>`);
+html = html.replace(/<script id="xlsx-src" type="text\/plain" data-src="\.\/([^"]+)"><\/script>/, (_, p) => `<script id="xlsx-src" type="text/plain">${safe(readFileSync(join(SRC, p), 'utf8'))}</script>`);
 html = html.replace(/<script id="topo-data" type="application\/json" data-src="\.\/([^"]+)"><\/script>/, (_, p) => `<script id="topo-data" type="application/json">${readFileSync(join(SRC, p), 'utf8').trim().replace(/</g, '\\u003c')}</script>`);
 mkdirSync(join(ROOT, 'dist'), { recursive: true });
 writeFileSync(join(ROOT, 'dist', 'dashboard.html'), html);

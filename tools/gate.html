@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Cisco Global Command Center</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cg fill='%232a78d6'%3E%3Crect x='6' y='26' width='6' height='22' rx='3'/%3E%3Crect x='18' y='14' width='6' height='34' rx='3'/%3E%3Crect x='30' y='6' width='6' height='42' rx='3'/%3E%3Crect x='42' y='14' width='6' height='34' rx='3'/%3E%3Crect x='54' y='26' width='6' height='22' rx='3'/%3E%3C/g%3E%3C/svg%3E">
 <style>
 :root { --page:#0b1220; --surface:#111a2e; --line:#2c3b59; --ink:#e6ebf3; --ink2:#a9b4c6; --muted:#7d8aa0; --accent:#3987e5; --bad:#ef6b6b; color-scheme: dark; }
 @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --page:#f3f5f9; --surface:#ffffff; --line:#d3d9e3; --ink:#0f172a; --ink2:#475569; --muted:#6b7486; --accent:#2a78d6; --bad:#c62828; color-scheme: light; } }
@@ -49,8 +50,8 @@ async function keyFrom(pw) {
   const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: u8(P.salt), iterations: P.iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
 }
-async function open(key, keep) {
-  const gz = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: u8(P.iv) }, key, u8(P.ct));
+async function open(key, keep, gz) {
+  if (!gz) gz = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: u8(P.iv) }, key, u8(P.ct));
   if (keep) ss.set('cgcc.k', b64(await crypto.subtle.exportKey('raw', key)));
   const html = await new Response(new Blob([gz]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
   document.open(); document.write(html); document.close();
@@ -65,15 +66,16 @@ document.getElementById('f').onsubmit = async (e) => {
   e.preventDefault();
   const btn = document.getElementById('go'), err = document.getElementById('err');
   if (!window.crypto || !crypto.subtle) { err.textContent = 'Please open this page over https in a modern browser.'; return; }
+  if (typeof DecompressionStream === 'undefined') { err.textContent = 'This browser is too old. Please use a current Chrome, Edge, Safari (16.4+) or Firefox (113+).'; return; }
   btn.disabled = true; btn.textContent = 'Verifying…'; err.textContent = '';
+  const reset = (msg) => { btn.disabled = false; btn.textContent = 'Unlock dashboard'; err.textContent = msg; document.getElementById('pw').select(); };
+  let key, gz;
   try {
-    const key = await keyFrom(document.getElementById('pw').value);
-    await open(key, document.getElementById('keep').checked);
-  } catch (x) {
-    btn.disabled = false; btn.textContent = 'Unlock dashboard';
-    err.textContent = 'That access key is not valid.';
-    document.getElementById('pw').select();
-  }
+    key = await keyFrom(document.getElementById('pw').value.trim());   // pasted keys often carry stray spaces
+    gz = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: u8(P.iv) }, key, u8(P.ct));
+  } catch (x) { reset('That access key is not valid.'); return; }
+  try { await open(key, document.getElementById('keep').checked, gz); }
+  catch (x) { console.error(x); reset('The key is correct but this browser could not open the dashboard. Please try a current version of Chrome, Edge, Safari or Firefox.'); }
 };
 </script>
 </body>

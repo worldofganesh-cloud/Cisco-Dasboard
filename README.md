@@ -79,15 +79,29 @@ DASHBOARD_PASSWORD='the-access-key' node tools/build.mjs     # or a new key to r
 git add index.html source.enc && git commit -m "Update dashboard" && git push
 ```
 
-To change the access key, run `build.mjs` with a new password and push. Old links keep
-working; the old key stops working.
+To change the access key, run `build.mjs` with a new password and push. Links keep working and
+the new key opens the new build. **Git history is not erased**: earlier commits stay encrypted
+with the earlier key, so anyone holding an old key can still open those old revisions in a
+public repository. If a key must be revoked for good, publish from a fresh repository (a new
+single-commit history) instead of reusing this one.
 
 Optional: for high-resolution logos from [Logo.dev](https://www.logo.dev), put a free
 publishable key in `CONFIG.LOGO_DEV_TOKEN` in `src/js/core.js` and rebuild. Without one, the
 built-in vector Cisco mark is used, and customer logos fall back to their website icon.
 
 Charts use [Plotly.js](https://plotly.com/javascript/) and icons use [Lucide](https://lucide.dev).
-Both libraries and the world-map data are **bundled inside the encrypted page** (`src/vendor/`),
-so the dashboard makes no third-party requests and keeps working if a CDN is blocked by a
-corporate firewall. The only optional outside request is the Inter web font; without it the
-page falls back to the system font.
+The libraries, the world-map data and the Excel exporter are all **bundled inside the encrypted
+page** (`src/vendor/`), so the dashboard loads nothing from third parties on its own and keeps
+working behind a corporate firewall or offline. The font is the viewer's system font (Inter
+is used if it happens to be installed). The one outside request is optional and presenter-driven:
+when you co-brand for a customer (`?client=acme.com` or the brush icon), their logo is fetched from
+Google's public favicon service (or from Logo.dev if you add a key), which tells that service the
+customer's domain. Leave co-branding unset and nothing is ever requested.
+
+## Notes for presenters
+- Co-branding is remembered in the presenter's browser (localStorage). Use **Clear** in the brush
+  dialog between customers so the previous customer's name never shows.
+- Access key tips: use words unrelated to the prospect or the project; the page is public, so the
+  key's strength is the only protection. Pasted keys are trimmed of stray spaces.
+- All company, competitor and customer names beside simulated metrics are for illustration; the
+  page carries a permanent "Simulated data" badge and footer.
